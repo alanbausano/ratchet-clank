@@ -11,7 +11,7 @@ export default function NavbarDesk() {
   const authContxt = useContext(AuthContext);
   const logoutHandler = () => {
     authContxt.logout();
-  }
+  };
   const isLoggedIn = authContxt.isLoggedIn;
   const [mostrarDropdown, setMostrarDropdown] = useState(false);
   const [carrito] = useContext(ContextoReducer);
@@ -48,11 +48,6 @@ export default function NavbarDesk() {
           </animated.div>
         </div>
         <li>
-          <Linker to="games" spy={true} smooth={true} offset={0} duration={500}>
-            <button className="nav-item">Games</button>
-          </Linker>
-        </li>
-        <li>
           <Linker
             to="reviews"
             spy={true}
@@ -72,13 +67,25 @@ export default function NavbarDesk() {
         </li>
       </ul>
       <div className="container-registro">
-        { !isLoggedIn && <Link to="/login">
-          <button className="nav-item">Log In</button>
-        </Link>}
-        { isLoggedIn && <Link to='profile'><button className="nav-item">My profile</button></Link> } 
-        { !isLoggedIn ? <Link to="/signup">
-          <button className="nav-item registro">Sign Up</button>
-        </Link> : <button onClick={logoutHandler} className="nav-item registro">Log Out</button> }
+        {!isLoggedIn && (
+          <Link to="/login">
+            <button className="nav-item">Log In</button>
+          </Link>
+        )}
+        {isLoggedIn && (
+          <Link to="profile">
+            <button className="nav-item">My profile</button>
+          </Link>
+        )}
+        {!isLoggedIn ? (
+          <Link to="/signup">
+            <button className="nav-item registro">Sign Up</button>
+          </Link>
+        ) : (
+          <button onClick={logoutHandler} className="nav-item registro">
+            Log Out
+          </button>
+        )}
       </div>
     </nav>
   );

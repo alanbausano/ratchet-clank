@@ -1,57 +1,57 @@
 import axios from "axios";
-import React, { useContext, useEffect, useState } from "react";
-import { ContextoDB } from "../Contextos/ContextoDB";
+import React, { useState } from "react";
 import SubscribersList from "./SubscribersList";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
+import ModalNewsletter from "../Modales/ModalNewsletter";
+import { useSubscribers } from "./index";
 
-export default function NewsletterMobile() {
-  const [subscribersDB, dispatch] = useContext(ContextoDB); //POST
-  const [nombre, setNombre] = useState("");
-  const [apellido, setApellido] = useState("");
-  const [email, setEmail] = useState("");
-  const [subscribers, setSubscribers] = useState([]); //GET
-
-  useEffect(() => {
-    const obtenerItems = async () => {
-      const result = await axios(`/api/items`);
-      setSubscribers(result.data);
-    };
-    obtenerItems();
-  }, [subscribersDB]);
+export default function Newsletter() {
+  const [update, setUpdate] = useState(false);
+  const { newsSubscribers, isLoading } = useSubscribers(update);
+  const [modal, setModal] = useState(false);
+  const [message, setMessage] = useState("");
 
   const validationSchema = yup.object().shape({
     name: yup.string().required("Your name is required"),
     lastname: yup.string().required("Your last name is required"),
-    email: yup.string().email().required("Your Email is required"),
+    email: yup.string().email().required("Your email is required"),
     address: yup.string().optional(),
-    phone: yup.number().optional(),
   });
 
-  //Se hace el post a la BD con los datos que se ingresan en los input
-  const submit = (e) => {
-    e.preventDefault();
-    dispatch({ type: "AGREGAR_SUB", payload: { nombre, email } }); //Este dispatch no está haciendo nada más que actualizar, sólo es una dependencia para que useeffect tenga en cuenta para cuándo volver a renderear (quedó de una implementación anterior y funciona).
-    axios.post("/api/items", { nombre, apellido, email });
-    axios.post("/send", { nombre, apellido, email });
-    //después de hacer el post se pasan strings vacíos para dejar limpios los inputs
-    setNombre("");
-    setApellido("");
-    setEmail("");
+  const errorMessage =
+    "This email is already registered, please try with a different one";
+
+  const successMessage = "You've succesfully signed up to our newsletter";
+
+  const submit = (data) => {
+    const subsEmails = newsSubscribers.map((sub) => sub.email);
+    if (subsEmails.includes(data.email)) {
+      setModal(!modal);
+      setMessage(errorMessage);
+      return;
+    }
+    const res = axios.post("http://localhost:8080/api/items", { data });
+    res
+      .then(setModal(!modal), setMessage(successMessage), setUpdate(!update))
+      .catch((error) => console.error(error));
+    reset({ name: "", lastname: "", email: "", address: "", phone: "" });
   };
 
   const {
-    // control,
     handleSubmit,
-    // errors,
+    formState: { errors },
+    register,
+    reset,
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
   return (
     <div className="news-container-m">
-      <div className="tits-container titulos-m">
+      <div className="tits-container-m">
         <h2>
           Subscribe to our newsletter and get a 20% discount on all our products
         </h2>
@@ -63,59 +63,49 @@ export default function NewsletterMobile() {
       <div className="form-container-m">
         <form onSubmit={handleSubmit(submit)}>
           <h2>Newsletter</h2>
-          <label htmlFor="name">
+          <label htmlFor="nombre">
             Name
-            <input
-              type="text"
-              name="name"
-              required
-              placeholder="Name"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-            />
+            <input name="name" placeholder="Name" {...register("name")} />
           </label>
-          <label htmlFor="lastname">
-            Lastname
+          <div className="error-message">
+            <ErrorMessage errors={errors} name="name" />
+          </div>
+          <label htmlFor="apellido">
+            Last Name
             <input
-              type="text"
               name="lastname"
-              placeholder="Your Last Name"
-              required
-              value={apellido}
-              onChange={(e) => setApellido(e.target.value)}
+              placeholder="Last Name"
+              {...register("lastname")}
             />
           </label>
-          <label htmlFor="mail">
+          <div className="error-message">
+            <ErrorMessage errors={errors} name="lastname" />
+          </div>
+          <label htmlFor="email">
             Email
-            <input
-              type="email"
-              name="mail"
-              placeholder="Your Email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <input name="email" placeholder="Email" {...register("email")} />
           </label>
+          <div className="error-message">
+            <ErrorMessage errors={errors} name="email" />
+          </div>
           <label htmlFor="address">
             Address
             <input
-              type="text"
               name="address"
-              placeholder="Your address (optional)"
+              placeholder="Address"
+              {...register("address")}
+              className="optional"
             />
           </label>
           <label htmlFor="phone">
             Phone Number
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Your number (optional)"
-            />
+            <input name="phone" placeholder="Number" {...register("phone")} />
           </label>
           <button className="nav-item registro">Subscribe</button>
         </form>
       </div>
-      <SubscribersList subscribers={subscribers} />
+      <ModalNewsletter message={message} modal={modal} setModal={setModal} />
+      <SubscribersList subscribers={newsSubscribers} isLoading={isLoading} />
     </div>
   );
 }

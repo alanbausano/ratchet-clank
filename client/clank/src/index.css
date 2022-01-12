@@ -12,7 +12,7 @@ body {
 /*NAVBAR  */
 .menu-desk {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   background-color: transparent;
   justify-items: center;
   list-style: none;

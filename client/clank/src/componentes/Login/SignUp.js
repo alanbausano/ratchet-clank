@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 import ratchet from "../../imagenes/ratcheta.jpg";
 import Footer from "../Footer/Footer";
 import { ContextoModales } from "../Contextos/ContextoModales";
-import ModalInvalid from '../Modales/ModalInvalid'
+import ModalInvalid from "../Modales/ModalInvalid";
 
 export default function SignUp() {
   const [mostrarModal, setMostrarModal] = useContext(ContextoModales);
-  const [mensajeError, setMensajeError] = useState('');
+  const [mensajeError, setMensajeError] = useState("");
   const [signUp, setSignUp] = useState(false);
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
@@ -28,21 +28,23 @@ export default function SignUp() {
           returnSecureToken: true,
         }),
         headers: {
-          'Content-Type':'application/json',
+          "Content-Type": "application/json",
         },
       }
     ).then((res) => {
       if (res.ok) {
-            setSignUp(!signUp);
-            setMostrarModal(!mostrarModal);
+        setSignUp(!signUp);
+        setMostrarModal(!mostrarModal);
       } else {
         res.json().then((data) => {
           console.log(data);
-          if(data.error.message.includes('WEAK_PASSWORD')){
-            setMensajeError('Insecure password. It should, at least, contain 6 characters');
+          if (data.error.message.includes("WEAK_PASSWORD")) {
+            setMensajeError(
+              "Insecure password. It should, at least, contain 6 characters"
+            );
             setMostrarModal(!mostrarModal);
-          } else if(data.error.message.includes('EMAIL_EXISTS')){
-            setMensajeError('This email was already registered');
+          } else if (data.error.message.includes("EMAIL_EXISTS")) {
+            setMensajeError("This email was already registered");
             setMostrarModal(!mostrarModal);
           }
         });
@@ -87,7 +89,7 @@ export default function SignUp() {
               id="password"
               placeholder="Your password"
               ref={passwordInputRef}
-
+              required
             />
           </label>
           <label htmlFor="c-password">
