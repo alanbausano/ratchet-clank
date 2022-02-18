@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const newsRequest = async () => {
-  const result = await axios(`http://localhost:8080/api/items`);
+  const result = await axios(`/api/items`);
   console.log(result);
   return result.data;
 };

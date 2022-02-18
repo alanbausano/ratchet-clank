@@ -34,7 +34,8 @@ export default function Newsletter() {
       setMessage(errorMessage);
       return;
     }
-    const res = axios.post("http://localhost:8080/api/items", { data });
+    axios.post("/send", { data });
+    const res = axios.post("/api/items", { data });
     res
       .then(setModal(!modal), setMessage(successMessage), setUpdate(!update))
       .catch((error) => console.error(error));

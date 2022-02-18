@@ -13,7 +13,7 @@ const CLIENT_ID =
 const CLIENT_SECRET = "FQdHPYushYVletYe9Ii-VNTk";
 const REDIRECT_URI = "https://developers.google.com/oauthplayground";
 const REFRESH_TOKEN =
-  "1//04OEDFHnDdWOeCgYIARAAGAQSNwF-L9IrQwioTbIjjXXfSV1227Fo6G54XhjPzYmATs9hRHgjaUr5aVVy_nCPV0-aroV-1VYe8l8";
+  "1//04xnJxa4_557LCgYIARAAGAQSNwF-L9Ir48f2p_wkAfLv8B7tD-9EuXAPrOo6g3ciQwMxs21-n25fQvx_tWMvZBGg1UysMKnzKgg";
 
 const oAuth2Client = new google.auth.OAuth2(
   CLIENT_ID,
@@ -58,9 +58,9 @@ app.use("/api/items", items);
 app.post("/send", (req, res) => {
   const output = `
     <h3>Thanks for subscribing!</h3>
-    <p>Hello ${req.body.nombre},</p>
+    <p>Hello ${req.body.data.name},</p>
     <p>You've just succesfully subscribed to our newsletter</p>
-    <p>You'll be getting our news once a week</p>
+    <p>You'll be getting our emails once a week, and our weekly magazine at your house in ${req.body.data.address}</p>
     <p>If you want to stop receiving them, you can send us a mail with the subject "unsubscribe" followed by your email</p>
     
     <h2>Sincerely, the R&C team</h2>
@@ -68,7 +68,7 @@ app.post("/send", (req, res) => {
   console.log(req.body);
 
   async function main() {
-    const accesToken = await oAuth2Client.getAccessToken();
+    const accessToken = await oAuth2Client.getAccessToken();
     // create reusable transporter object using the default SMTP transport
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -81,7 +81,7 @@ app.post("/send", (req, res) => {
         clientId: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
         refreshToken: REFRESH_TOKEN,
-        accesToken: accesToken,
+        accessToken: accessToken,
       },
       tls: {
         rejectUnauthorized: false,
@@ -91,7 +91,7 @@ app.post("/send", (req, res) => {
     // send mail with defined transport object
     let info = await transporter.sendMail({
       from: '"R&C team" <alanpruebas101@gmail.com>', // sender address
-      to: req.body.email, // list of receivers
+      to: req.body.data.email, // list of receivers
       subject: "Newsletter subscription", // Subject line
       html: output, // html body
     });
